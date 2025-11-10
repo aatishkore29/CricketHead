@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { upcomingMatchesStyles } from "../assets/dummyStyles";
+import {
+  upcomingMatchesStyles,
+  pickColors,
+  getGradientStyle,
+} from "../assets/dummyStyles";
+import { getUpcomingMatches } from "../api/cricApi";
+import { flagForTeamName } from "./Flag";
+import Loader from "./Loader";
 
 export default function UpcomingMatches({ onSelect }) {
   const [groups, setGroups] = useState([]);
@@ -9,6 +16,7 @@ export default function UpcomingMatches({ onSelect }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [quotaMode, setQuotaMode] = useState(false);
 
+  // Format timestamp safely
   function fmtEpochString(val) {
     if (val === undefined || val === null || val === "") return "";
     const n = Number(val);
@@ -19,6 +27,7 @@ export default function UpcomingMatches({ onSelect }) {
     return d.toLocaleString();
   }
 
+  // Extract + group payload
   function extractAndGroup(payload) {
     if (!payload) return [];
     const root = payload.data ?? payload;
@@ -53,9 +62,7 @@ export default function UpcomingMatches({ onSelect }) {
               "All matches";
             temp.push({
               matchId: String(
-                info?.matchId ??
-                  info?.matchId ??
-                  `${t1?.teamName}-${t2?.teamName}-${start}`
+                info?.matchId ?? `${t1?.teamName}-${t2?.teamName}-${start}`
               ),
               series: seriesName || "All matches",
               team1: {
@@ -77,7 +84,7 @@ export default function UpcomingMatches({ onSelect }) {
       }
     }
 
-    // group by series and dedupe
+    // group by series
     const groupsObj = {};
     for (const g of temp) {
       const key = g.series || "All matches";
@@ -86,7 +93,6 @@ export default function UpcomingMatches({ onSelect }) {
         groupsObj[key].push(g);
     }
 
-    // produce ordered list (preserve insertion order)
     return Object.keys(groupsObj).map((k) => ({
       title: k,
       matches: groupsObj[k],
@@ -103,7 +109,6 @@ export default function UpcomingMatches({ onSelect }) {
       setQuotaMode(
         Boolean(res.quotaExceeded || res.fallback || res.quota_exceeded)
       );
-
       const grouped = extractAndGroup(payload);
       setGroups(grouped);
       setLastUpdated(new Date());
@@ -120,7 +125,7 @@ export default function UpcomingMatches({ onSelect }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Flag + initials fallback UI component
+  // ✅ Proper flag component (now independent)
   function Flag({ name }) {
     const f = flagForTeamName(name || "");
     const srcPng = f?.srcPng ?? f?.src ?? null;
@@ -137,7 +142,6 @@ export default function UpcomingMatches({ onSelect }) {
       setSrc(srcPng || srcSvg || null);
       setTriedSvg(false);
       setImgError(false);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name]);
 
     const onImgError = () => {
@@ -159,69 +163,186 @@ export default function UpcomingMatches({ onSelect }) {
         />
       );
     }
-  }
-  return (
-  <>
-  <div>
 
-  </div>
-  </>
+    if (emoji) {
+      return (
+        <div className={upcomingMatchesStyles.emojiContainer}>{emoji}</div>
+      );
+    }
+
+    const text =
+      initials ||
+      (label || "")
+        .split(" ")
+        .map((s) => s[0] || "")
+        .slice(0, 2)
+        .join("")
+        .toUpperCase() ||
+      "?";
+    const [c1, c2] = pickColors(label || text);
+    return (
+      <div
+        className={upcomingMatchesStyles.initialsContainer}
+        style={getGradientStyle(c1, c2)}
+        title={label}
+      >
+        <span className="text-xs">{text}</span>
+      </div>
+    );
+  }
+
+  // ✅ Main Render
+  if (loading && groups.length === 0) {
+    return (
+      <div className={upcomingMatchesStyles.loadingContainer}>
+        <Loader message="Loading upcoming matches..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={upcomingMatchesStyles.errorContainer}>Error: {error}</div>
+    );
+  }
+
+  return (
+    <div className={upcomingMatchesStyles.container}>
+      <div className={upcomingMatchesStyles.headerContainer}>
+        <div className={upcomingMatchesStyles.headerTitle}>
+          Upcoming Matches
+        </div>
+        <div className={upcomingMatchesStyles.headerSubtitle}>
+          Manual refresh
+        </div>
+        <div className="flex items-center gap-3">
+          {lastUpdated && (
+            <div className={upcomingMatchesStyles.lastUpdatedText}>
+              Last: {lastUpdated.toLocaleDateString()}
+            </div>
+          )}
+          <button
+            onClick={fetchUpcoming}
+            className={upcomingMatchesStyles.refreshButton}
+            disabled={loading}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
+      </div>
+
+      {quotaMode && (
+        <div className={upcomingMatchesStyles.quotaAlert}>
+          Quota may be exceeded - showing cached/sample data.
+        </div>
+      )}
+
+      {groups.length > 0 ? (
+        <div className={upcomingMatchesStyles.groupsContainer}>
+          {groups.map((g, gi) => (
+            <section className={upcomingMatchesStyles.seriesSection} key={gi}>
+              <div className={upcomingMatchesStyles.seriesHeader}>
+                <div>
+                  <div className={upcomingMatchesStyles.seriesTitle}>
+                    {g.title}
+                  </div>
+                  <div className={upcomingMatchesStyles.seriesMatchCount}>
+                    {g.matches.length} match
+                    {g.matches.length > 1 ? "es" : ""}
+                  </div>
+                </div>
+                <div className={upcomingMatchesStyles.seriesLabel}>Series</div>
+              </div>
+
+              <div className={upcomingMatchesStyles.matchesGrid}>
+                {g.matches.map((m) => (
+                  <article
+                    key={m.matchId}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => onSelect && onSelect(m.matchId)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ")
+                        onSelect && onSelect(m.matchId);
+                    }}
+                    className={upcomingMatchesStyles.matchArticle}
+                  >
+                    <div className={upcomingMatchesStyles.matchArticleInner}>
+                      <div className={upcomingMatchesStyles.matchHeader}>
+                        <div className={upcomingMatchesStyles.matchTime}>
+                          {m.time || "TBA"}
+                        </div>
+                        <div className={upcomingMatchesStyles.matchVenue}>
+                          {m.venue || ""}
+                        </div>
+                      </div>
+
+                      <div className={upcomingMatchesStyles.teamsContainer}>
+                        <div className={upcomingMatchesStyles.teamContainer}>
+                          <Flag name={m.team1.name} />
+                          <div className="min-w-0">
+                            <div className={upcomingMatchesStyles.teamName}>
+                              {m.team1.name}
+                            </div>
+                            <div className={upcomingMatchesStyles.teamStatus}>
+                              Upcoming
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className={upcomingMatchesStyles.vsText}>vs</div>
+
+                        <div
+                          className={
+                            upcomingMatchesStyles.teamContainerReversed
+                          }
+                        >
+                          <div className="text-right min-w-0">
+                            <div className={upcomingMatchesStyles.teamName}>
+                              {m.team2.name}
+                            </div>
+                            <div className={upcomingMatchesStyles.teamStatus}>
+                              {m.venue || ""}
+                            </div>
+                          </div>
+                          <Flag name={m.team2.name} />
+                        </div>
+                      </div>
+
+                      <div className={upcomingMatchesStyles.matchFooter}>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelect && onSelect(m.matchId);
+                            }}
+                            className={upcomingMatchesStyles.detailsButton}
+                          >
+                            Details
+                          </button>
+                          <div className={upcomingMatchesStyles.matchId}>
+                            #{m.matchId}
+                          </div>
+                        </div>
+                        <div className={upcomingMatchesStyles.matchDate}>
+                          {m.time ? m.time.split(",")[0] : "TBA"}
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <div className={upcomingMatchesStyles.noMatchesContainer}>
+          <div className="mb-3">No upcoming matches scheduled.</div>
+          <pre className={upcomingMatchesStyles.rawDataPre}>
+            {JSON.stringify(raw ?? "No data", null, 2)}
+          </pre>
+        </div>
+      )}
+    </div>
   );
 }
-
-//     if (emoji) {
-//       return (
-//         <div className={upcomingMatchesStyles.emojiContainer}>
-//           {emoji}
-//         </div>
-//       );
-//     }
-
-//     const text = (initials || (label || '').split(' ').map(s => s[0] || '').slice(0, 2).join('').toUpperCase() || '?');
-//     const [c1, c2] = pickColors(label || text);
-//     return (
-//       <div
-//         className={upcomingMatchesStyles.initialsContainer}
-//         style={getGradientStyle(c1, c2)}
-//         title={label}
-//       >
-//         <span className="text-xs">{text}</span>
-//       </div>
-//     );
-//   }
-
-//                   <article
-//                     key={m.matchId}
-//                     role="button"
-//                     tabIndex={0}
-//                     onClick={() => onSelect && onSelect(m.matchId)}
-//                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSelect && onSelect(m.matchId); }}
-//                     className={upcomingMatchesStyles.matchArticle}
-//                     aria-label={`Upcoming match ${m.team1.name} vs ${m.team2.name}`}
-//                   >
-
-//                           <div className={upcomingMatchesStyles.teamsContainer}>
-//                         <div className={upcomingMatchesStyles.teamContainer}>
-//                           <Flag name={m.team1.name} />
-//                           <div className="min-w-0">
-//                             <div className={upcomingMatchesStyles.teamName}>{m.team1.name}</div>
-//                             <div className={upcomingMatchesStyles.teamStatus}>Upcoming</div>
-//                           </div>
-//                         </div>
-
-//                         <div className={upcomingMatchesStyles.vsText}>vs</div>
-
-//                         <div className={upcomingMatchesStyles.teamContainerReversed}>
-//                           <div className="text-right min-w-0">
-//                             <div className={upcomingMatchesStyles.teamName}>{m.team2.name}</div>
-//                             <div className={upcomingMatchesStyles.teamStatus}>{m.venue || ''}</div>
-//                           </div>
-//                           <Flag name={m.team2.name} />
-//                         </div>
-//                       </div>
-
-//                     {/* hover ring */}
-//                     <div
-//                       className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-//                       style={{ boxShadow: '0 8px 28px rgba(59,130,246,0.10)' }}
-//                     />

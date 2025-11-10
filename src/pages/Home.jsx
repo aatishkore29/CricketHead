@@ -3,7 +3,7 @@ import { homeStyles } from "../assets/dummyStyles";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ball from "../assets/ball.png";
-import bat from "../assets/bat.png";
+import mrfBat from "../assets/mrfBat.png";
 import Loader from "../components/Loader";
 import LiveMatch from "../components/LiveMatch";
 import { getLiveMatches } from "../api/cricApi";
@@ -229,7 +229,7 @@ export default function Home() {
                 }}
               />
 
-              <img src={bat} alt="bat" className="hero-bat" />
+              <img src={mrfBat} alt="bat" className="hero-bat" />
               <img src={ball} alt="ball" className="hero-ball" />
             </div>
           </section>

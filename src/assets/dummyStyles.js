@@ -3,118 +3,122 @@ export const headerStyles = {
   container: "sticky top-6 z-50 px-4",
   innerContainer: "max-w-6xl mx-auto",
   mainWrapper:
-    "backdrop-blur-md bg-gradient-to-r from-[#1e1b4b]/90 via-[#312e81]/90 to-[#4c1d95]/90 border border-white/10 rounded-2xl p-3 flex items-center gap-4 shadow-xl",
+    "backdrop-blur-md bg-white/60 border border-white/40 rounded-2xl p-3 flex items-center gap-4 shadow-sm",
 
   // Logo section
   logoContainer: "flex items-center gap-3",
   logoImage: "w-10 h-10 flex items-center justify-center overflow-hidden",
   logoImg: "w-full h-full object-contain",
   logoText: "hidden sm:block",
-  logoTitle:
-    "text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-indigo-400 to-blue-300 font-semibold text-2xl leading-none drop-shadow-md",
+  logoTitle: "text-slate-800 font-semibold text-2xl leading-none",
 
   // Search section
-  searchForm:
-    "flex-1 flex items-center justify-center md:justify-start relative",
-  searchWrapper: "w-full max-w-xl relative",
+  searchForm: "flex-1 flex items-center justify-center md:justify-start",
+  searchWrapper: "w-full max-w-xl",
   searchInput:
-    "w-full rounded-full border border-fuchsia-400/30 bg-[#1e1b4b]/40 text-white/90 py-2 pl-4 pr-12 text-sm placeholder:text-slate-400 focus:outline-none ring-2 ring-fuchsia-500/30 focus:ring-fuchsia-400/60 transition",
+    "w-full rounded-full border border-white/30 bg-white/40 py-2 pl-4 pr-10 text-sm placeholder:text-slate-400 focus:outline-none ring-2 ring-indigo-200",
   searchButton:
-    "absolute right-1 top-1/2 -translate-y-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-600 to-indigo-500 text-white text-sm shadow-md hover:scale-[1.05] transition",
+    "absolute right-1 top-1/2 -translate-y-1/2 px-3 py-1 rounded-full bg-indigo-600 text-white text-sm",
 
   // Navigation section
-  navContainer: "hidden md:flex items-center gap-4",
-  navButtons:
-    "text-sm text-slate-200 hover:text-fuchsia-300 transition font-medium",
+  navContainer: "hidden md:flex items-center gap-3",
+  navButtons: "text-sm text-slate-600 hover:text-slate-900",
   authContainer: "flex items-center gap-2",
-
-  loginButton:
-    "px-3 py-1 rounded-full text-sm bg-transparent border border-fuchsia-400/40 text-fuchsia-200 hover:bg-fuchsia-500/20 transition",
+  loginButton: "px-3 py-1 rounded-full text-sm bg-white border border-white/40",
   signupButton:
-    "px-4 py-2 rounded-full bg-gradient-to-r from-fuchsia-600 to-indigo-500 text-white text-sm shadow-md hover:scale-[1.05] transition",
+    "px-4 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white text-sm shadow-md",
 
   // Mobile menu
   mobileMenuButton: "md:hidden ml-auto",
-  menuToggleButton:
-    "p-2 rounded-md bg-[#1e1b4b]/80 border border-fuchsia-500/30 text-white",
-  menuIcon: "w-5 h-5 text-fuchsia-200",
+  menuToggleButton: "p-2 rounded-md bg-white/60 border border-white/30",
+  menuIcon: "w-5 h-5 text-slate-700",
   mobileMenu:
-    "mt-2 p-3 bg-[#1e1b4b]/90 rounded-lg shadow-lg border border-fuchsia-500/30 absolute right-4 top-20 w-[90%] max-w-xs backdrop-blur-lg",
+    "mt-2 p-3 bg-white/90 rounded-lg shadow-lg absolute right-4 top-20 w-[90%] max-w-xs",
   mobileNav: "flex flex-col gap-2",
-  mobileNavButton:
-    "text-sm text-fuchsia-100 text-left w-full hover:text-fuchsia-300",
+  mobileNavButton: "text-sm text-slate-700 text-left w-full",
   mobileAuthContainer: "mt-3 flex gap-2",
-  mobileAuthButton:
-    "flex-1 px-3 py-2 rounded-full text-white font-medium shadow-md",
-  mobileLogin: "bg-indigo-700/70 hover:bg-indigo-600",
-  mobileSignup: "bg-fuchsia-600/80 hover:bg-fuchsia-500",
+  mobileAuthButton: "flex-1 px-3 py-2 rounded-full",
+  mobileLogin: "bg-white border",
+  mobileSignup: "bg-indigo-600 text-white",
 };
 
 export const liveMatchStyles = {
+  // Main container
   container: "space-y-4",
 
+  // Header section
   headerContainer:
-    "backdrop-blur-lg bg-gradient-to-r from-indigo-900/50 via-purple-900/40 to-fuchsia-900/40 p-3 rounded-2xl flex items-center justify-between shadow-lg border border-white/10",
+    "backdrop-blur-md bg-white/50 p-3 rounded-2xl flex items-center justify-between",
   titleWrapper: "live-title",
   title: "title",
   dotPulse: "dot-pulse",
   dotBase: "dot-base",
-  subtitle: "text-xs text-fuchsia-200",
+  subtitle: "text-xs text-slate-500",
 
+  // Quota mode alert
   quotaAlert:
-    "rounded-2xl p-3 bg-fuchsia-100/20 border border-fuchsia-300/30 text-fuchsia-200 text-sm backdrop-blur-md",
+    "rounded-2xl p-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm",
 
+  // Loading/error states
   loadingContainer: "p-6",
-  errorContainer: "p-6 text-rose-400",
+  errorContainer: "p-6 text-rose-600",
 
+  // Matches grid
   matchesGrid: "grid grid-cols-1 lg:grid-cols-2 gap-6",
 
+  // Individual match card
   matchCard:
-    "group relative rounded-2xl p-[1px] bg-gradient-to-br from-indigo-700/60 via-fuchsia-600/40 to-purple-700/50 hover:scale-[1.02] transition-all duration-200 shadow-2xl border border-white/10",
+    "group relative rounded-2xl p-[1px] bg-gradient-to-br from-cyan-100 via-blue-50 to-indigo-100 hover:scale-[1.02] transform-gpu transition-all duration-200 shadow-lg",
   matchCardInner:
-    "rounded-2xl bg-[#0f0c29]/70 backdrop-blur-md p-4 h-full flex flex-col justify-between border border-white/10",
+    "rounded-2xl bg-white/80 backdrop-blur-md p-4 h-full flex flex-col justify-between",
 
+  // Match header (status and time)
   matchHeader: "flex items-start justify-between",
-  matchStatus: "text-sm font-semibold text-fuchsia-200 truncate max-w-[60%]",
-  matchTime: "text-xs text-indigo-300",
+  matchStatus: "text-sm font-medium text-slate-800 truncate max-w-[60%]",
+  matchTime: "text-xs text-slate-500",
 
+  // Teams section
   teamsContainer: "mt-4 flex items-center justify-between gap-4",
   teamContainer: "flex items-center gap-3 min-w-0",
   teamContainerReversed: "flex items-center gap-3 min-w-0 justify-end",
-  teamName: "text-sm font-semibold text-white truncate",
-  teamScore: "text-xs text-indigo-200 mt-1",
-  vsText: "text-xs text-fuchsia-400",
+  teamName: "text-sm font-semibold text-slate-900 truncate",
+  teamScore: "text-xs text-slate-500 mt-1",
+  vsText: "text-xs text-slate-400",
 
-  matchFooter: "mt-4 flex items-center justify-between text-xs text-slate-300",
+  // Match footer
+  matchFooter: "mt-4 flex items-center justify-between text-xs text-slate-600",
   detailsButton:
-    "px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-600 to-indigo-500 text-white text-xs shadow-md hover:scale-[1.05] transition",
+    "px-3 py-1 rounded-full bg-white/70 text-xs shadow-sm hover:bg-white",
   matchId: "text-xs text-slate-400 hidden sm:block",
-  venue: "text-xs text-indigo-200",
+  venue: "text-xs text-slate-500",
 
-  flagImage: "w-12 h-8 object-cover rounded-md shadow-md flex-shrink-0",
+  // Flag styles
+  flagImage: "w-12 h-8 object-cover rounded-md shadow-sm flex-shrink-0",
   emojiContainer: "w-12 h-10 flex items-center justify-center text-2xl",
   initialsContainer:
     "w-12 h-12 rounded-full flex items-center justify-center font-semibold text-white shadow",
 
-  noMatchesContainer:
-    "rounded-2xl p-4 bg-indigo-900/40 text-sm text-slate-200 backdrop-blur-md",
-  rawDataPre:
-    "max-h-64 overflow-auto text-xs bg-indigo-950/50 p-3 rounded text-fuchsia-200",
+  // No matches state
+  noMatchesContainer: "rounded-2xl p-4 bg-white/90 text-sm text-slate-600",
+  rawDataPre: "max-h-64 overflow-auto text-xs bg-slate-50 p-3 rounded",
 
-  refreshButton:
-    "px-3 py-1 rounded-full bg-fuchsia-700/40 text-fuchsia-100 text-sm shadow-sm hover:bg-fuchsia-600/60",
+  // Refresh button
+  refreshButton: "px-3 py-1 rounded-full bg-white shadow-sm text-sm",
 
+  // Live indicator styles (for CSS classes)
   liveTitle: `
 .live-title {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
 .title {
-  background: linear-gradient(90deg, #e879f9, #a855f7, #6366f1);
+  background: linear-gradient(90deg, #06b6d4, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-weight: 700;
   font-size: 1.5rem;
   line-height: 2rem;
@@ -124,7 +128,7 @@ export const liveMatchStyles = {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #f43f5e;
+  background-color: #ef4444;
   position: relative;
   animation: pulse 1.5s infinite;
 }
@@ -133,7 +137,7 @@ export const liveMatchStyles = {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #f43f5e;
+  background-color: #ef4444;
   position: absolute;
   top: 0;
   left: 0;
@@ -142,15 +146,15 @@ export const liveMatchStyles = {
 @keyframes pulse {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(244, 63, 94, 0);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }
   `,
@@ -158,13 +162,13 @@ export const liveMatchStyles = {
 
 // Color palette for team initials
 export const colorPalette = [
-  ["#f472b6", "#a855f7"],
-  ["#22d3ee", "#6366f1"],
-  ["#facc15", "#f97316"],
-  ["#14b8a6", "#3b82f6"],
-  ["#9333ea", "#ec4899"],
-  ["#0ea5e9", "#7e22ce"],
-  ["#f43f5e", "#8b5cf6"],
+  ["#06b6d4", "#3b82f6"],
+  ["#7c3aed", "#06b6d4"],
+  ["#ef4444", "#f97316"],
+  ["#10b981", "#06b6d4"],
+  ["#8b5cf6", "#06b6d4"],
+  ["#ef6f6c", "#7c3aed"],
+  ["#0ea5a4", "#60a5fa"],
 ];
 
 // Helper function to pick colors for team initials
@@ -517,74 +521,90 @@ export const upcomingMatchesStyles = {
 };
 
 export const homeStyles = {
-  root: "min-h-screen relative bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e] text-slate-100 overflow-x-hidden font-sans",
+  // Root layout
+  root: "min-h-screen relative bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-800 overflow-x-hidden font-sans",
 
+  // Decorative elements
   blob1:
-    "pointer-events-none absolute -top-36 -left-36 w-[520px] h-[520px] rounded-full opacity-60 blur-3xl",
+    "pointer-events-none absolute -top-36 -left-36 w-[520px] h-[520px] rounded-full opacity-80 blur-3xl",
   blob1Gradient:
-    "radial-gradient(circle at 30% 30%, rgba(139,92,246,0.4), rgba(79,70,229,0.3) 90%, transparent 90%)",
+    "radial-gradient(circle at 30% 30%, rgba(255,219,205,0.9), rgba(255,245,238,0.6) 90%, transparent 90%)",
   blob2:
-    "pointer-events-none absolute -top-20 right-[-120px] w-[520px] h-[520px] rounded-full opacity-50 blur-3xl",
+    "pointer-events-none absolute -top-20 right-[-120px] w-[520px] h-[520px] rounded-full opacity-70 blur-3xl",
   blob2Gradient:
-    "radial-gradient(circle at 70% 20%, rgba(236,72,153,0.5), rgba(244,114,182,0.3) 100%, transparent 100%)",
+    "radial-gradient(circle at 70% 20%, rgba(222,255,226,0.9), rgba(240,255,245,0.6) 100%, transparent 100%)",
 
+  // Header positioning
   headerContainer: "fixed inset-x-0 top-7 z-50",
 
+  // Main content
   main: "max-w-6xl mx-auto px-6 pt-20 md:pt-24",
   section: "mb-16",
 
+  // Hero section
   heroWrapper: "relative",
   heroBox:
-    "relative mt-5 overflow-visible rounded-3xl px-6 md:px-10 lg:px-12 py-16 md:py-10 bg-gradient-to-r from-purple-700 via-indigo-600 to-pink-600 shadow-xl",
+    "relative mt-5 overflow-visible rounded-3xl px-6 md:px-10 lg:px-12 py-16 md:py-10 bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-500 shadow-xl",
   heroSpotlight: "absolute inset-0 pointer-events-none",
   heroSpotlightGradient:
     "radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08), rgba(255,255,255,0.02) 20%, transparent 40%)",
   heroContent:
     "relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center",
 
+  // Hero text
   heroText: "text-center md:text-left",
   heroTitle:
-    "text-2xl md:text-3xl lg:text-4xl font-extrabold text-white leading-tight drop-shadow-lg",
+    "text-2xl md:text-3xl lg:text-4xl font-extrabold text-white leading-tight drop-shadow-sm",
   heroSubtitle: "mt-4 text-white/90 text-sm md:text-base max-w-2xl",
 
+  // Hero buttons
   heroButtons: "mt-6 flex flex-wrap gap-3 justify-center md:justify-start",
   primaryButton:
-    "px-5 py-3 rounded-full bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white font-medium shadow-lg hover:scale-[1.03] transition",
+    "px-5 py-3 rounded-full bg-white text-indigo-700 font-medium shadow hover:scale-[1.01] transform transition",
   secondaryButton:
     "px-5 py-3 rounded-full bg-white/10 border border-white/25 text-white text-sm hover:bg-white/20 transition",
 
-  heroFeatures: "mt-6 hidden md:flex gap-4 text-sm text-white/80",
-  featureTag:
-    "bg-white/20 px-3 py-2 rounded-lg border border-white/30 backdrop-blur-md",
+  // Hero features
+  heroFeatures: "mt-6 hidden md:flex gap-4 text-sm text-white/90",
+  featureTag: "bg-white/10 px-3 py-2 rounded-lg",
 
+  // Hero shadow
   heroShadow: "absolute inset-0 rounded-3xl pointer-events-none",
 
+  // Layout sections
   gridSection: "grid grid-cols-1 lg:grid-cols-3 gap-6",
   mainContent: "lg:col-span-2 space-y-6",
+  sidebar: "hidden lg:block lg:col-span-1",
+  sidebarSticky: "sticky top-20 space-y-6",
 
+  // Section headers
   sectionHeader: "flex items-center justify-between mb-3",
-  sectionTitle: "text-lg font-medium text-white",
-  sectionSubtitle: "text-xs text-slate-300",
+  sectionTitle: "text-lg font-medium text-slate-800",
+  sectionSubtitle: "text-xs text-slate-500",
 
+  // Live matches section
   liveStatus: "flex items-center gap-2",
-  liveCount: "text-xs text-fuchsia-300",
+  liveCount: "text-xs text-slate-500",
 
-  quickScoreCard:
-    "rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-900/40 to-fuchsia-800/30 p-4 shadow-lg backdrop-blur-md",
+  // Quick score sidebar
+  quickScoreCard: "rounded-2xl border border-white/30 bg-white p-4",
   quickScoreHeader: "flex items-center justify-between mb-3",
-  quickScoreTitle: "text-sm font-medium text-fuchsia-300",
-  quickScoreStatus: "text-xs text-fuchsia-400",
-  quickScoreContent: "text-sm text-slate-200 mb-3",
-  quickScoreButton:
-    "px-3 py-2 rounded-full bg-indigo-700/50 text-white text-sm hover:bg-indigo-600 transition",
+  quickScoreTitle: "text-sm font-medium text-cyan-800",
+  quickScoreStatus: "text-xs text-cyan-500",
+  quickScoreContent: "text-sm text-slate-600 mb-3",
+  quickScoreButton: "px-3 py-2 rounded-full bg-slate-100 text-sm",
 
+  // Details section
   detailsSection: "mt-10",
-  detailsCard:
-    "rounded-2xl border border-white/10 bg-indigo-900/30 p-6 shadow-inner backdrop-blur-md",
-  detailsTitle: "text-lg font-semibold text-fuchsia-200 mb-4",
+  detailsCard: "rounded-2xl border border-white/30 bg-white p-6",
+  detailsTitle: "text-lg font-semibold text-slate-800 mb-4",
   detailsContent: "space-y-6",
-};
 
+  // Team section
+  teamSection: "mt-8",
+  teamCard: "rounded-2xl border border-white/30 bg-white p-6",
+  teamTitle: "text-lg font-semibold text-slate-800 mb-2",
+};
 
 export const footerStyles = {
   // Main container

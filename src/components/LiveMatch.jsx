@@ -218,7 +218,7 @@ export default function LiveMatch({ onSelect }) {
           <span className={liveMatchStyles.dotBase}></span>
           <span className={liveMatchStyles.dotPulse}></span>
         </div>
-        <div className={liveMatchStyles.subtitle}>Manual refresh (no polling)</div>
+        <div className={liveMatchStyles.subtitle}>Manual refresh</div>
         <div className="flex items-center gap-3">
           {lastUpdated && (
             <div className={liveMatchStyles.subtitle}>
