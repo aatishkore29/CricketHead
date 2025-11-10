@@ -134,7 +134,7 @@ const Header = ({ onSearch = () => {} }) => {
                       Log In
                     </button>
                     <button
-                      className={`${headerStyles.mobileAuthButton} ${headerStyles.mobileLogin}`}
+                      className={`${headerStyles.mobileAuthButton} ${headerStyles.mobileSignup}`}
                     >
                       Sign Up
                     </button>

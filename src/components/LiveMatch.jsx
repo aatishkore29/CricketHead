@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   liveMatchStyles,
   pickColors,
-  getGradientStyle,
 } from "../assets/dummyStyles";
+import { getLiveMatches } from "../api/cricApi";
+import Loader from "./Loader";
+import { flagForTeamName } from "./Flag";
 
 export default function LiveMatch({ onSelect }) {
   const [matches, setMatches] = useState([]);
@@ -13,7 +15,6 @@ export default function LiveMatch({ onSelect }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [quotaMode, setQuotaMode] = useState(false);
 
-  // helpers - original parsing logic (kept intact)
   const toNumberSafe = (v) => {
     if (v == null) return null;
     const n = Number(v);
@@ -30,7 +31,6 @@ export default function LiveMatch({ onSelect }) {
     return d.toLocaleString();
   };
 
-  // Shows innings score
   const formatInningsScore = (innings) => {
     if (!innings) return "";
     const runs = innings.runs ?? innings.runs;
@@ -41,7 +41,6 @@ export default function LiveMatch({ onSelect }) {
     return overs ? `${score} (${overs} ov)` : score;
   };
 
-  // Shows team score
   const formatTeamScore = (matchScore, teamKey) => {
     if (!matchScore || !matchScore[teamKey]) return "";
     const obj = matchScore[teamKey];
@@ -61,8 +60,6 @@ export default function LiveMatch({ onSelect }) {
     return "";
   };
 
-  // preserve your original extraction:
-  // How data will be shown
   const extractFromPayload = (payload) => {
     if (!payload) return [];
     const root = payload.data ?? payload;
@@ -81,17 +78,12 @@ export default function LiveMatch({ onSelect }) {
         if (Array.isArray(matchesArr) && matchesArr.length) {
           for (const mm of matchesArr) {
             const info = mm.matchInfo || mm.matchinfo || mm?.match || mm;
-            const score = mm.matchScore || mm.matchScore || mm.score || {};
-            const t1 = info?.team1 || info?.teamA || info?.teamA || {};
-            const t2 = info?.team2 || info?.teamB || info?.teamB || {};
+            const score = mm.matchScore || mm.score || {};
+            const t1 = info?.team1 || {};
+            const t2 = info?.team2 || {};
             const mId =
-              (info &&
-                (info.matchId || info.matchid || info.match_id || info.mid)) ||
-              (t1?.teamName || t1?.teamSName) +
-                "-" +
-                (t2?.teamName || t2?.teamSName) +
-                "-" +
-                (info?.startDate || info?.start_date || info?.start || "");
+              info.matchId ||
+              `${t1?.teamSName}-${t2?.teamSName}-${info?.startDate || ""}`;
             const title =
               info?.status ||
               info?.stateTitle ||
@@ -100,8 +92,6 @@ export default function LiveMatch({ onSelect }) {
               "";
             const start =
               info?.startDate ||
-              info?.start_date ||
-              info?.start ||
               info?.startTime ||
               info?.startTimeStamp ||
               "";
@@ -109,22 +99,12 @@ export default function LiveMatch({ onSelect }) {
             out.push({
               matchId: String(mId),
               team1: {
-                name:
-                  t1?.teamSName ||
-                  t1?.teamName ||
-                  t1?.team ||
-                  t1?.name ||
-                  "Team 1",
+                name: t1?.teamSName || t1?.teamName || "Team 1",
               },
               team2: {
-                name:
-                  t2?.teamSName ||
-                  t2?.teamName ||
-                  t2?.team ||
-                  t2?.name ||
-                  "Team 2",
+                name: t2?.teamSName || t2?.teamName || "Team 2",
               },
-              status: info?.status || info?.stateTitle || title || "",
+              status: title,
               venue:
                 info?.venueInfo?.ground ||
                 info?.venueInfo?.city ||
@@ -171,8 +151,8 @@ export default function LiveMatch({ onSelect }) {
       const mapped = deduped.map((m) => {
         const teamAName = m.team1?.name || "";
         const teamBName = m.team2?.name || "";
-        const flagA = flagForTeamName(teamAName || "");
-        const flagB = flagForTeamName(teamBName || "");
+        const flagA = flagForTeamName(teamAName);
+        const flagB = flagForTeamName(teamBName);
         return {
           id: m.matchId,
           teamA: { name: teamAName, score: m.score1, flag: flagA },
@@ -194,114 +174,165 @@ export default function LiveMatch({ onSelect }) {
     }
   }
 
-  // Fucntion shows the live matches list
   useEffect(() => {
     fetchLive();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // FlagAndLabel component
+  // --- Correct Flag Component ---
   function FlagAndLabel({ flagObj, fallbackLabel }) {
-    const srcPng = flagObj?.srcPng ?? flagObj?.src ?? null;
-    const srcSvg = flagObj?.srcSvg ?? null;
-    const emoji = flagObj?.emoji ?? null;
-    const initials = flagObj?.initials ?? null;
-    const label = flagObj?.label ?? fallbackLabel ?? "";
-
-    const [currentSrc, setCurrentSrc] = useState(srcPng || srcSvg || null);
-    const [triedSvg, setTriedSvg] = useState(false);
-    const [imgError, setImgError] = useState(false);
-
-    useEffect(() => {
-      setCurrentSrc(srcPng || srcSvg || null);
-      setTriedSvg(false);
-      setImgError(false);
-    }, [srcPng, srcSvg, emoji, initials, label]);
-
-    function handleImgError() {
-      if (srcSvg && !triedSvg && currentSrc !== srcSvg) {
-        setTriedSvg(true);
-        setCurrentSrc(srcSvg);
-        return;
-      }
-      setImgError(true);
-    }
-
-    if (currentSrc && !imgError) {
+    const src = flagObj?.srcPng || flagObj?.srcSvg || null;
+    if (src) {
       return (
         <img
-          src={currentSrc}
-          alt={label ? `${label} flag` : "flag"}
+          src={src}
+          alt={fallbackLabel}
           className={liveMatchStyles.flagImage}
-          onError={handleImgError}
         />
       );
     }
 
-    if (emoji) {
-      return <div className={liveMatchStyles.emojiContainer}>{emoji}</div>;
-    }
-
     const text =
-      initials ||
-      (label || "")
-        .split(" ")
-        .map((s) => s[0] || "")
-        .slice(0, 2)
-        .join("")
-        .toUpperCase() ||
-      "?";
-    const [c1, c2] = pickColors(label || text);
+      fallbackLabel?.slice(0, 2)?.toUpperCase() || "??";
+    const [c1, c2] = pickColors(text);
     return (
-      <div className={liveMatchStyles.container}>
-        <div className={liveMatchStyles.headerContainer}>
-          <div className={liveMatchStyles.titleWrapper}>
-            <div className={liveMatchStyles.title}>Live Matches</div>
-            <span className={liveMatchStyles.dotBase}></span>
-            <span className={liveMatchStyles.dotPulse}></span>
-          </div>
-          <div className={liveMatchStyles.subtitle}>Manual refreash</div>
-          <div className="flex items-center gap-3">
-            {lastUpdated && (
-              <div className={liveMatchStyles.subtitle}>
-                {lastUpdated.toLocaleTimeString()}
-              </div>
-            )}
-            <button
-              onClick={fetchLive}
-              className={liveMatchStyles.refreshButton}
-              disabled={loading}
-            >
-              {loading ? "refreshing...." : "refresh"}
-            </button>
-          </div>
-        </div>
+      <div
+        className="flex items-center justify-center font-semibold rounded-full text-white"
+        style={{
+          background: `linear-gradient(135deg, ${c1}, ${c2})`,
+          width: "32px",
+          height: "32px",
+        }}
+      >
+        {text}
       </div>
     );
   }
+
+  // --- Main Render ---
+  return (
+    <div className={liveMatchStyles.container}>
+      {/* Header */}
+      <div className={liveMatchStyles.headerContainer}>
+        <div className={liveMatchStyles.titleWrapper}>
+          <div className={liveMatchStyles.title}>Live Matches</div>
+          <span className={liveMatchStyles.dotBase}></span>
+          <span className={liveMatchStyles.dotPulse}></span>
+        </div>
+        <div className={liveMatchStyles.subtitle}>Manual refresh (no polling)</div>
+        <div className="flex items-center gap-3">
+          {lastUpdated && (
+            <div className={liveMatchStyles.subtitle}>
+              Last: {lastUpdated.toLocaleTimeString()}
+            </div>
+          )}
+          <button
+            onClick={fetchLive}
+            className={liveMatchStyles.refreshButton}
+            disabled={loading}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
+      </div>
+
+      {quotaMode && (
+        <div className={liveMatchStyles.quotaAlert}>
+          Quota may be exceeded - showing cached/sample data.
+        </div>
+      )}
+
+      {/* Match List */}
+      {loading && matches.length === 0 ? (
+        <Loader message="Loading live matches..." />
+      ) : error ? (
+        <div className={liveMatchStyles.errorContainer}>Error: {error}</div>
+      ) : matches.length > 0 ? (
+        <div className={liveMatchStyles.matchesGrid}>
+          {matches.map((m) => (
+            <div
+              key={m.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => onSelect && onSelect(m.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  onSelect && onSelect(m.id);
+              }}
+              className={liveMatchStyles.matchCard}
+            >
+              <div className={liveMatchStyles.matchCardInner}>
+                <div className={liveMatchStyles.matchHeader}>
+                  <div className={liveMatchStyles.matchStatus}>
+                    {m.status || "Match"}
+                  </div>
+                  <div className={liveMatchStyles.matchTime}>
+                    {m.time ? m.time.split(",")[0] : ""}
+                  </div>
+                </div>
+
+                <div className={liveMatchStyles.teamsContainer}>
+                  <div className={liveMatchStyles.teamContainer}>
+                    <FlagAndLabel
+                      flagObj={m.teamA.flag}
+                      fallbackLabel={m.teamA.name}
+                    />
+                    <div>
+                      <div className={liveMatchStyles.teamName}>
+                        {m.teamA.name}
+                      </div>
+                      <div className={liveMatchStyles.teamScore}>
+                        {m.teamA.score || ""}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={liveMatchStyles.vsText}>vs</div>
+
+                  <div className={liveMatchStyles.teamContainerReversed}>
+                    <div className="text-right">
+                      <div className={liveMatchStyles.teamName}>
+                        {m.teamB.name}
+                      </div>
+                      <div className={liveMatchStyles.teamScore}>
+                        {m.teamB.score || ""}
+                      </div>
+                    </div>
+                    <FlagAndLabel
+                      flagObj={m.teamB.flag}
+                      fallbackLabel={m.teamB.name}
+                    />
+                  </div>
+                </div>
+
+                <div className={liveMatchStyles.matchFooter}>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelect && onSelect(m.id);
+                      }}
+                      className={liveMatchStyles.detailsButton}
+                    >
+                      Details
+                    </button>
+                    <div className={liveMatchStyles.matchId}>#{m.id}</div>
+                  </div>
+                  <div className={liveMatchStyles.venue}>
+                    {m.venue || ""}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className={liveMatchStyles.noMatchesContainer}>
+          <div>No parsed live matches. Raw API for debugging:</div>
+          <pre className={liveMatchStyles.rawDataPre}>
+            {JSON.stringify(raw ?? "No data", null, 2)}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
 }
-
-//   <div className={liveMatchStyles.teamsContainer}>
-//                 <div className={liveMatchStyles.teamContainer}>
-//                   <FlagAndLabel flagObj={m.teamA.flag} fallbackLabel={m.teamA.name} />
-//                   <div className="min-w-0">
-//                     <div className={liveMatchStyles.teamName}>{m.teamA.name}</div>
-//                     <div className={liveMatchStyles.teamScore}>{m.teamA.score || ''}</div>
-//                   </div>
-//                 </div>
-
-//                 <div className={liveMatchStyles.vsText}>vs</div>
-
-//                 <div className={liveMatchStyles.teamContainerReversed}>
-//                   <div className="text-right min-w-0">
-//                     <div className={liveMatchStyles.teamName}>{m.teamB.name}</div>
-//                     <div className={liveMatchStyles.teamScore}>{m.teamB.score || ''}</div>
-//                   </div>
-//                   <FlagAndLabel flagObj={m.teamB.flag} fallbackLabel={m.teamB.name} />
-//                 </div>
-//               </div>
-
-//  <div
-//               className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-//               style={{ boxShadow: '0 6px 20px rgba(59,130,246,0.12)' }}
-//             />
