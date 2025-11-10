@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { homeStyles } from "../assets/dummyStyles";
-import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ball from "../assets/ball.png";
 import mrfBat from "../assets/mrfBat.png";
@@ -8,6 +7,9 @@ import Loader from "../components/Loader";
 import LiveMatch from "../components/LiveMatch";
 import { getLiveMatches } from "../api/cricApi";
 import UpcomingMatches from "../components/UpcomingMatches";
+import Scoreboard from "../components/ScoreBoard";
+import MatchDetail from "../components/MatchDetail";
+import Footer from "../components/Footer";
 
 export default function Home() {
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -266,8 +268,85 @@ export default function Home() {
                 <UpcomingMatches onSelect={(id) => onSelectMatch(id)} />
               </div>
             </div>
+            {/* Right Bar */}
+            <aside className={homeStyles.sidebar}>
+              <div className={homeStyles.sidebarSticky}>
+                <div className={homeStyles.quickScoreCard}>
+                  <div className={homeStyles.quickScoreHeader}>
+                    <div className={homeStyles.quickScoreTitle}>
+                      Quick Score
+                    </div>
+                    <div className={homeStyles.quickScoreStatus}>
+                      Live / Select
+                    </div>
+                  </div>
+                  {loadingInitial ? (
+                    <Loader message="Loading live summary..." centered />
+                  ) : !selectedMatch ? (
+                    <div className={homeStyles.quickScoreContent}>
+                      No match selected. Click any card to load quick score.
+                    </div>
+                  ) : (
+                    <div>
+                      <div className={homeStyles.quickScoreContent}>
+                        Match: {selectedMatch}
+                      </div>
+                      <Scoreboard matchId={normalizeMatchId(selectedMatch)} />
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          onClick={() => {
+                            const cl = document.getElementById("match-details");
+                            if (el)
+                              el.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start",
+                              });
+                          }}
+                          className={homeStyles.quickScoreButton}
+                        >
+                          View details
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </aside>
+          </section>
+          {/* details section */}
+          <section id="match-detail" className={homeStyles.detailsSection}>
+            <div className={homeStyles.detailsCard}>
+              <div className={homeStyles.detailsTitle}>Match Details</div>
+              {!selectedMatch && (
+                <div className={homeStyles.quickScoreContent}>
+                  No match selected. Click any match card from Live or Upcoming
+                  to view details
+                </div>
+              )}
+              {selectedMatch && (
+                <div className={homeStyles.detailsContent}>
+                  <MatchDetail matchId={normalizeMatchId(selectedMatch)}/>
+                  <div>
+                    <div className="text-sm font-medium text-slate-800 mb-3">Scoreboard</div>
+                    <Scoreboard matchId={normalizeMatchId(selectedMatch)}/>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+          {/* teams section */}
+          <section id="team-section" className={homeStyles.teamSection}>
+            {teamId && (
+              <div className={homeStyles.teamCard}>
+                <div className={homeStyles.teamTitle}>Team Preview: {teamId}</div>
+                <div className={homeStyles.quickScoreContent}>
+                  (Team detail component not included)
+                </div>
+              </div>
+            )}
           </section>
         </main>
+        <Footer />
       </div>
     </>
   );
