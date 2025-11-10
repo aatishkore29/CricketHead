@@ -1,3 +1,10 @@
+import React, { useState } from "react";
+import {
+  liveMatchStyles,
+  pickColors,
+  getGradientStyle,
+} from "../assets/dummyStyles";
+
 export default function LiveMatch({ onSelect }) {
   const [matches, setMatches] = useState([]);
   const [raw, setRaw] = useState(null);
@@ -14,7 +21,7 @@ export default function LiveMatch({ onSelect }) {
   };
 
   const fmtEpochString = (val) => {
-    if (val === undefined || val === null || val === '') return '';
+    if (val === undefined || val === null || val === "") return "";
     const n = toNumberSafe(val);
     if (!n) return String(val);
     const ms = n < 1e12 && n > 1e9 ? n * 1000 : n;
@@ -23,29 +30,39 @@ export default function LiveMatch({ onSelect }) {
     return d.toLocaleString();
   };
 
+  // Shows innings score
   const formatInningsScore = (innings) => {
-    if (!innings) return '';
+    if (!innings) return "";
     const runs = innings.runs ?? innings.runs;
-    const wkts = innings.wickets ?? innings.wkts ?? innings.wktsTaken ?? '';
-    const overs = innings.overs ?? innings.oversPlayed ?? innings.oversString ?? '';
-    const score = (runs || runs === 0) ? `${runs}/${wkts || 0}` : '';
+    const wkts = innings.wickets ?? innings.wkts ?? innings.wktsTaken ?? "";
+    const overs =
+      innings.overs ?? innings.oversPlayed ?? innings.oversString ?? "";
+    const score = runs || runs === 0 ? `${runs}/${wkts || 0}` : "";
     return overs ? `${score} (${overs} ov)` : score;
   };
 
+  // Shows team score
   const formatTeamScore = (matchScore, teamKey) => {
-    if (!matchScore || !matchScore[teamKey]) return '';
+    if (!matchScore || !matchScore[teamKey]) return "";
     const obj = matchScore[teamKey];
-    const inns2 = obj.inngs2 || obj.inngs || obj.inns2 || (obj.inngs1 && obj.inngs2 ? obj.inngs2 : null);
-    if (inns2 && (inns2.runs != null)) return formatInningsScore(inns2);
-    if (obj.inngs1 && (obj.inngs1.runs != null)) return formatInningsScore(obj.inngs1);
+    const inns2 =
+      obj.inngs2 ||
+      obj.inngs ||
+      obj.inns2 ||
+      (obj.inngs1 && obj.inngs2 ? obj.inngs2 : null);
+    if (inns2 && inns2.runs != null) return formatInningsScore(inns2);
+    if (obj.inngs1 && obj.inngs1.runs != null)
+      return formatInningsScore(obj.inngs1);
     if (obj.runs != null) {
-      const runs = obj.runs, wkts = obj.wickets ?? obj.wkts ?? '';
+      const runs = obj.runs,
+        wkts = obj.wickets ?? obj.wkts ?? "";
       return `${runs}/${wkts}`;
     }
-    return '';
+    return "";
   };
 
   // preserve your original extraction:
+  // How data will be shown
   const extractFromPayload = (payload) => {
     if (!payload) return [];
     const root = payload.data ?? payload;
@@ -59,27 +76,63 @@ export default function LiveMatch({ onSelect }) {
 
       for (const sEntry of seriesMatches) {
         const saw = sEntry?.seriesAdWrapper || sEntry;
-        const matchesArr = (saw && (saw.matches || saw.matchesList)) || sEntry?.matches || [];
+        const matchesArr =
+          (saw && (saw.matches || saw.matchesList)) || sEntry?.matches || [];
         if (Array.isArray(matchesArr) && matchesArr.length) {
           for (const mm of matchesArr) {
             const info = mm.matchInfo || mm.matchinfo || mm?.match || mm;
             const score = mm.matchScore || mm.matchScore || mm.score || {};
             const t1 = info?.team1 || info?.teamA || info?.teamA || {};
             const t2 = info?.team2 || info?.teamB || info?.teamB || {};
-            const mId = (info && (info.matchId || info.matchid || info.match_id || info.mid)) ||
-              (t1?.teamName || t1?.teamSName) + '-' + (t2?.teamName || t2?.teamSName) + '-' + (info?.startDate || info?.start_date || info?.start || '');
-            const title = info?.status || info?.stateTitle || info?.matchDesc || info?.matchFormat || '';
-            const start = info?.startDate || info?.start_date || info?.start || info?.startTime || info?.startTimeStamp || '';
+            const mId =
+              (info &&
+                (info.matchId || info.matchid || info.match_id || info.mid)) ||
+              (t1?.teamName || t1?.teamSName) +
+                "-" +
+                (t2?.teamName || t2?.teamSName) +
+                "-" +
+                (info?.startDate || info?.start_date || info?.start || "");
+            const title =
+              info?.status ||
+              info?.stateTitle ||
+              info?.matchDesc ||
+              info?.matchFormat ||
+              "";
+            const start =
+              info?.startDate ||
+              info?.start_date ||
+              info?.start ||
+              info?.startTime ||
+              info?.startTimeStamp ||
+              "";
 
             out.push({
               matchId: String(mId),
-              team1: { name: t1?.teamSName || t1?.teamName || t1?.team || t1?.name || 'Team 1' },
-              team2: { name: t2?.teamSName || t2?.teamName || t2?.team || t2?.name || 'Team 2' },
-              status: info?.status || info?.stateTitle || title || '',
-              venue: info?.venueInfo?.ground || info?.venueInfo?.city || info?.venue || '',
+              team1: {
+                name:
+                  t1?.teamSName ||
+                  t1?.teamName ||
+                  t1?.team ||
+                  t1?.name ||
+                  "Team 1",
+              },
+              team2: {
+                name:
+                  t2?.teamSName ||
+                  t2?.teamName ||
+                  t2?.team ||
+                  t2?.name ||
+                  "Team 2",
+              },
+              status: info?.status || info?.stateTitle || title || "",
+              venue:
+                info?.venueInfo?.ground ||
+                info?.venueInfo?.city ||
+                info?.venue ||
+                "",
               time: fmtEpochString(start),
-              score1: formatTeamScore(score, 'team1Score'),
-              score2: formatTeamScore(score, 'team2Score'),
+              score1: formatTeamScore(score, "team1Score"),
+              score2: formatTeamScore(score, "team2Score"),
               raw: mm,
             });
           }
@@ -93,7 +146,8 @@ export default function LiveMatch({ onSelect }) {
     const map = new Map();
     for (const a of arr) {
       if (!a) continue;
-      const key = a.matchId || (a.team1?.name + '|' + a.team2?.name + '|' + a.time);
+      const key =
+        a.matchId || a.team1?.name + "|" + a.team2?.name + "|" + a.time;
       if (!map.has(key)) map.set(key, a);
     }
     return Array.from(map.values());
@@ -104,18 +158,21 @@ export default function LiveMatch({ onSelect }) {
     setError(null);
     try {
       const res = await getLiveMatches({ cacheTTL: 30 });
-      const payload = res.data ?? (res.rawResponse && res.rawResponse.data) ?? res;
+      const payload =
+        res.data ?? (res.rawResponse && res.rawResponse.data) ?? res;
       setRaw(payload);
-      setQuotaMode(Boolean(res.quotaExceeded || res.fallback || res.quota_exceeded));
+      setQuotaMode(
+        Boolean(res.quotaExceeded || res.fallback || res.quota_exceeded)
+      );
 
       const candidates = extractFromPayload(payload);
       const deduped = dedupeByMatchId(candidates);
 
       const mapped = deduped.map((m) => {
-        const teamAName = m.team1?.name || '';
-        const teamBName = m.team2?.name || '';
-        const flagA = flagForTeamName(teamAName || '');
-        const flagB = flagForTeamName(teamBName || '');
+        const teamAName = m.team1?.name || "";
+        const teamBName = m.team2?.name || "";
+        const flagA = flagForTeamName(teamAName || "");
+        const flagB = flagForTeamName(teamBName || "");
         return {
           id: m.matchId,
           teamA: { name: teamAName, score: m.score1, flag: flagA },
@@ -130,25 +187,26 @@ export default function LiveMatch({ onSelect }) {
       setMatches(mapped);
       setLastUpdated(new Date());
     } catch (err) {
-      console.error('[LiveMatch] error', err);
-      setError(err?.message || 'Failed to load live matches');
+      console.error("[LiveMatch] error", err);
+      setError(err?.message || "Failed to load live matches");
     } finally {
       setLoading(false);
     }
   }
 
+  // Fucntion shows the live matches list
   useEffect(() => {
     fetchLive();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // FlagAndLabel component (same approach you used)
+  // FlagAndLabel component
   function FlagAndLabel({ flagObj, fallbackLabel }) {
     const srcPng = flagObj?.srcPng ?? flagObj?.src ?? null;
     const srcSvg = flagObj?.srcSvg ?? null;
     const emoji = flagObj?.emoji ?? null;
     const initials = flagObj?.initials ?? null;
-    const label = flagObj?.label ?? fallbackLabel ?? '';
+    const label = flagObj?.label ?? fallbackLabel ?? "";
 
     const [currentSrc, setCurrentSrc] = useState(srcPng || srcSvg || null);
     const [triedSvg, setTriedSvg] = useState(false);
@@ -173,7 +231,7 @@ export default function LiveMatch({ onSelect }) {
       return (
         <img
           src={currentSrc}
-          alt={label ? `${label} flag` : 'flag'}
+          alt={label ? `${label} flag` : "flag"}
           className={liveMatchStyles.flagImage}
           onError={handleImgError}
         />
@@ -181,55 +239,69 @@ export default function LiveMatch({ onSelect }) {
     }
 
     if (emoji) {
-      return (
-        <div className={liveMatchStyles.emojiContainer}>
-          {emoji}
-        </div>
-      );
+      return <div className={liveMatchStyles.emojiContainer}>{emoji}</div>;
     }
 
-    const text = initials || (label || '').split(' ').map(s => s[0] || '').slice(0,2).join('').toUpperCase() || '?';
+    const text =
+      initials ||
+      (label || "")
+        .split(" ")
+        .map((s) => s[0] || "")
+        .slice(0, 2)
+        .join("")
+        .toUpperCase() ||
+      "?";
     const [c1, c2] = pickColors(label || text);
     return (
-      <div
-        className={liveMatchStyles.initialsContainer}
-        style={getGradientStyle(c1, c2)}
-        aria-hidden
-      >
-        <span className="text-sm">{text}</span>
+      <div className={liveMatchStyles.container}>
+        <div className={liveMatchStyles.headerContainer}>
+          <div className={liveMatchStyles.titleWrapper}>
+            <div className={liveMatchStyles.title}>Live Matches</div>
+            <span className={liveMatchStyles.dotBase}></span>
+            <span className={liveMatchStyles.dotPulse}></span>
+          </div>
+          <div className={liveMatchStyles.subtitle}>Manual refreash</div>
+          <div className="flex items-center gap-3">
+            {lastUpdated && (
+              <div className={liveMatchStyles.subtitle}>
+                {lastUpdated.toLocaleTimeString()}
+              </div>
+            )}
+            <button
+              onClick={fetchLive}
+              className={liveMatchStyles.refreshButton}
+              disabled={loading}
+            >
+              {loading ? "refreshing...." : "refresh"}
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 }
 
+//   <div className={liveMatchStyles.teamsContainer}>
+//                 <div className={liveMatchStyles.teamContainer}>
+//                   <FlagAndLabel flagObj={m.teamA.flag} fallbackLabel={m.teamA.name} />
+//                   <div className="min-w-0">
+//                     <div className={liveMatchStyles.teamName}>{m.teamA.name}</div>
+//                     <div className={liveMatchStyles.teamScore}>{m.teamA.score || ''}</div>
+//                   </div>
+//                 </div>
 
+//                 <div className={liveMatchStyles.vsText}>vs</div>
 
+//                 <div className={liveMatchStyles.teamContainerReversed}>
+//                   <div className="text-right min-w-0">
+//                     <div className={liveMatchStyles.teamName}>{m.teamB.name}</div>
+//                     <div className={liveMatchStyles.teamScore}>{m.teamB.score || ''}</div>
+//                   </div>
+//                   <FlagAndLabel flagObj={m.teamB.flag} fallbackLabel={m.teamB.name} />
+//                 </div>
+//               </div>
 
-
-    <div className={liveMatchStyles.teamsContainer}>
-                  <div className={liveMatchStyles.teamContainer}>
-                    <FlagAndLabel flagObj={m.teamA.flag} fallbackLabel={m.teamA.name} />
-                    <div className="min-w-0">
-                      <div className={liveMatchStyles.teamName}>{m.teamA.name}</div>
-                      <div className={liveMatchStyles.teamScore}>{m.teamA.score || ''}</div>
-                    </div>
-                  </div>
-
-                  <div className={liveMatchStyles.vsText}>vs</div>
-
-                  <div className={liveMatchStyles.teamContainerReversed}>
-                    <div className="text-right min-w-0">
-                      <div className={liveMatchStyles.teamName}>{m.teamB.name}</div>
-                      <div className={liveMatchStyles.teamScore}>{m.teamB.score || ''}</div>
-                    </div>
-                    <FlagAndLabel flagObj={m.teamB.flag} fallbackLabel={m.teamB.name} />
-                  </div>
-                </div>
-
-   <div
-                className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                style={{ boxShadow: '0 6px 20px rgba(59,130,246,0.12)' }}
-              />
-
-
-
+//  <div
+//               className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+//               style={{ boxShadow: '0 6px 20px rgba(59,130,246,0.12)' }}
+//             />

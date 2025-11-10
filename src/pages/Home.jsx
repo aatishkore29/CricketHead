@@ -1,15 +1,21 @@
+import React, { useState, useRef } from "react";
 import { homeStyles } from "../assets/dummyStyles";
+import Footer from "../components/Footer";
 import Header from "../components/Header";
+import ball from "../assets/ball.png";
+import bat from "../assets/bat.png";
+import Loader from "../components/Loader";
+import LiveMatch from "../components/LiveMatch";
 
 export default function Home() {
-  // const [selectedMatch, setSelectedMatch] = useState(null);
-  // const [teamIdInput, setTeamIdInput] = useState("");
-  // const [teamId, setTeamId] = useState(null);
-  // const [loadingInitial, setLoadingInitial] = useState(true);
-  // const [liveList, setLiveList] = useState([]);
-  // const [liveError, setLiveError] = useState(null);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [teamIdInput, setTeamIdInput] = useState("");
+  const [teamId, setTeamId] = useState(null);
+  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [liveList, setLiveList] = useState([]);
+  const [liveError, setLiveError] = useState(null);
 
-  // const stylesInjected = useRef(false);
+  const stylesInjected = useRef(false);
 
   // // load Google font "Poppins" once
   // useEffect(() => {
@@ -118,12 +124,12 @@ export default function Home() {
   //   fetchInitialLive();
   // }, [fetchInitialLive]);
 
-  // function onSelectMatch(id) {
-  //   const s = id != null ? String(id) : null;
-  //   setSelectedMatch(s);
-  //   const el = document.getElementById("match-detail");
-  //   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  // }
+  function onSelectMatch(id) {
+    const s = id != null ? String(id) : null;
+    setSelectedMatch(s);
+    const el = document.getElementById("match-detail");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   // function viewTeam() {
   //   if (!teamIdInput) return;
@@ -132,16 +138,16 @@ export default function Home() {
   //   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   // }
 
-  // // perspective parent for translateZ
-  // const heroWrapperStyle = {
-  //   perspective: "1100px",
-  //   WebkitPerspective: "1100px",
-  // };
+  // perspective parent for translateZ
+  const heroWrapperStyle = {
+    perspective: "1100px",
+    WebkitPerspective: "1100px",
+  };
 
-  // const heroBoxStyle = {
-  //   transformStyle: "preserve-3d",
-  //   WebkitTransformStyle: "preserve-3d",
-  // };
+  const heroBoxStyle = {
+    transformStyle: "preserve-3d",
+    WebkitTransformStyle: "preserve-3d",
+  };
 
   return (
     <>
@@ -155,8 +161,104 @@ export default function Home() {
           style={{ background: homeStyles.blob2Gradient }}
         ></div>
         <div className={homeStyles.headerContainer}>
-          <Header onSearch={(q) => console.log("search",q)} />
+          <Header onSearch={(q) => console.log("search", q)} />
         </div>
+        <main className={homeStyles.main}>
+          <section className={homeStyles.section}>
+            <div className={homeStyles.heroWrapper} style={heroWrapperStyle}>
+              <div className={homeStyles.heroBox} style={heroBoxStyle}>
+                <div
+                  className={homeStyles.heroSpotlight}
+                  style={{ background: homeStyles.heroSpotlightGradient }}
+                ></div>
+                <div className={homeStyles.heroContent}>
+                  <div className={homeStyles.heroText}>
+                    <h1
+                      className={homeStyles.heroTitle}
+                      style={{
+                        fontFamily:
+                          "'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+                      }}
+                    >
+                      Follow every matches. <br /> Real-time scroes, deep
+                      insights
+                    </h1>
+                    <p className={homeStyles.heroSubtitle}>
+                      Live scorecards, upcoming fixtures and match analytics —
+                      Fast live scores, schedule tracking and compact analytics.
+                    </p>
+                    <div className={homeStyles.heroButtons}>
+                      <button
+                        onClick={() =>
+                          document
+                            .getElementById("live")
+                            ?.scrollIntoView({ behavior: "smooth" })
+                        }
+                        className={homeStyles.primaryButton}
+                      >
+                        View live match
+                      </button>
+                      <button
+                        onClick={() =>
+                          document
+                            .getElementById("match-detail")
+                            ?.scrollIntoView({ behavior: "smooth" })
+                        }
+                        className={homeStyles.secondaryButton}
+                      >
+                        Quick details
+                      </button>
+                    </div>
+                    <div className={homeStyles.heroFeatures}>
+                      <div className={homeStyles.featureTag}>
+                        Live Score Cards
+                      </div>
+                      <div className={homeStyles.featureTag}>Match details</div>
+                      <div className={homeStyles.featureTag}>Team Stats</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className={homeStyles.heroShadow}
+                style={{
+                  boxShadow: "0 8px 30px rgba(14, 30, 50, 0.06)",
+                  borderRadius: "24px",
+                }}
+              />
+
+              <img src={bat} alt="bat" className="hero-bat" />
+              <img src={ball} alt="ball" className="hero-ball" />
+            </div>
+          </section>
+          {/* top */}
+          <section className={homeStyles.gridSection}>
+            <div className={homeStyles.mainContent}>
+              <div className="space-y-4" id="live">
+                <div className={homeStyles.sectionHeader}>
+                  <div className={homeStyles.liveStatus}>
+                    <div className={homeStyles.liveCount}>
+                      {loadingInitial
+                        ? "Loading..."
+                        : `${liveList / length} matches`}
+                    </div>
+                  </div>
+                </div>
+                {loadingInitial ? (
+                  <Loader message="laoding live matches" centered />
+                ) : liveError ? (
+                  <div className="text-sm text-red-600">{liveError}</div>
+                ) : (
+                  <LiveMatch
+                    matches={liveList}
+                    onSelect={(id) => onSelectMatch(id)}
+                    selectedMatch={selectedMatch}
+                  />
+                )}
+              </div>
+            </div>
+          </section>
+        </main>
       </div>
     </>
   );
