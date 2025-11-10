@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { homeStyles } from "../assets/dummyStyles";
+import { getLiveMatches } from "../api/cricApi";
 import Header from "../components/Header";
 import ball from "../assets/ball.png";
 import mrfBat from "../assets/mrfBat.png";
 import Loader from "../components/Loader";
 import LiveMatch from "../components/LiveMatch";
-import { getLiveMatches } from "../api/cricApi";
 import UpcomingMatches from "../components/UpcomingMatches";
 import Scoreboard from "../components/ScoreBoard";
 import MatchDetail from "../components/MatchDetail";

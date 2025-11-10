@@ -3,6 +3,8 @@ import { getMatchCenter, getScard, getHscard } from "../api/cricApi";
 import { matchDetailStyles } from "../assets/dummyStyles";
 import Loader from "./Loader";
 import ScoreCard from "./ScoreCard";
+import Scoreboard from "../components/ScoreBoard";
+import PlayerList from "./PlayerList";
 
 export default function MatchDetail({ matchId, className = "" }) {
   const [center, setCenter] = useState(null);
@@ -104,18 +106,18 @@ export default function MatchDetail({ matchId, className = "" }) {
           ? tryExtract(hscardRes.value)
           : null;
 
-      console.log(
-        "[MatchDetail] centerPayload keys:",
-        centerPayload ? Object.keys(centerPayload).slice(0, 8) : null
-      );
-      console.log(
-        "[MatchDetail] scardPayload keys:",
-        scardPayload ? Object.keys(scardPayload).slice(0, 8) : null
-      );
-      console.log(
-        "[MatchDetail] hscardPayload keys:",
-        hscardPayload ? Object.keys(hscardPayload).slice(0, 8) : null
-      );
+      // console.log(
+      //   "[MatchDetail] centerPayload keys:",
+      //   centerPayload ? Object.keys(centerPayload).slice(0, 8) : null
+      // );
+      // console.log(
+      //   "[MatchDetail] scardPayload keys:",
+      //   scardPayload ? Object.keys(scardPayload).slice(0, 8) : null
+      // );
+      // console.log(
+      //   "[MatchDetail] hscardPayload keys:",
+      //   hscardPayload ? Object.keys(hscardPayload).slice(0, 8) : null
+      // );
 
       setCenter(centerPayload);
       setHscard(hscardPayload);
@@ -255,22 +257,71 @@ export default function MatchDetail({ matchId, className = "" }) {
           <div className={matchDetailStyles.mainGrid}>
             <div className={matchDetailStyles.leftColumn}>
               <ScoreCard innings={innings} />
+              <div className={matchDetailStyles.scoreboardContainer}>
+                <Scoreboard matchId={String(matchId)} />
+              </div>
+              {showRaw && (
+                <div className={matchDetailStyles.rawDataContainer}>
+                  <div className={matchDetailStyles.rawDataTitle}>
+                    Raw payloads
+                  </div>
+                  <div className={matchDetailStyles.rawDataSectionTitle}>
+                    center:
+                  </div>
+                  <pre className={matchDetailStyles.rawDataPre}>
+                    {JSON.stringify(center || {}, null, 2)}
+                  </pre>
+                  <div className={matchDetailStyles.rawDataSectionTitle}>
+                    scard (normalized/raw):
+                  </div>
+                  <pre className={matchDetailStyles.rawDataPre}>
+                    {JSON.stringify(scard || {}, null, 2)}
+                  </pre>
+                  <div className={matchDetailStyles.rawDataSectionTitle}>
+                    hscard (raw):
+                  </div>
+                  <pre className={matchDetailStyles.rawDataPre}>
+                    {JSON.stringify(hscard || {}, null, 2)}
+                  </pre>
+                </div>
+              )}
             </div>
+            <aside className={matchDetailStyles.sidebarContainer}>
+              <div className={matchDetailStyles.summaryCard}>
+                <div className={matchDetailStyles.summaryTitle}>
+                  Match Summary
+                </div>
+                <div className={matchDetailStyles.summaryText}>
+                  {(center && center.match?.status) ||
+                    (hscard && hscard.status) ||
+                    (scard && scard.status) ||
+                    "-"}
+                </div>
+                {center?.match?.venueInfo && (
+                  <div className={matchDetailStyles.venueText}>
+                    {center.match.venueInfo.ground} •{" "}
+                    {center.match.venueInfo.city}
+                  </div>
+                )}
+              </div>
+              <div className={matchDetailStyles.playersCard}>
+                <div className={matchDetailStyles.playersTitle}>Players</div>
+                <PlayerList
+                  players={players}
+                  onSelect={(p) => console.log("player selected", p)}
+                  compact
+                />
+                {!players ||
+                  (players.length === 0 && (
+                    <div className={matchDetailStyles.noPlayersText}>
+                      No players data available
+                    </div>
+                  ))}
+              </div>
+            </aside>
           </div>
         )}
       </div>
     </>
   );
-
-  // {showRaw && (
-  //   <div className={matchDetailStyles.rawDataContainer}>
-  //     <div className={matchDetailStyles.rawDataTitle}>Raw payloads</div>
-  //     <div className={matchDetailStyles.rawDataSectionTitle}>center:</div>
-  //     <pre className={matchDetailStyles.rawDataPre}>{JSON.stringify(center || {}, null, 2)}</pre>
-  //     <div className={matchDetailStyles.rawDataSectionTitle}>scard (normalized/raw):</div>
-  //     <pre className={matchDetailStyles.rawDataPre}>{JSON.stringify(scard || {}, null, 2)}</pre>
-  //     <div className={matchDetailStyles.rawDataSectionTitle}>hscard (raw):</div>
-  //     <pre className={matchDetailStyles.rawDataPre}>{JSON.stringify(hscard || {}, null, 2)}</pre>
-  //   </div>
-  // )}
 }

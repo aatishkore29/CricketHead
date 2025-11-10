@@ -24,7 +24,8 @@ export default function ScoreCard({
       </div>
     );
   }
-
+  // No innings happen then no scroe card is available
+  
   return (
     <div className={`${scoreCardStyles.container} ${className}`}>
       {innings.map((inn, idx) => {
