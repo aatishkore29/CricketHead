@@ -7,6 +7,7 @@ import bat from "../assets/bat.png";
 import Loader from "../components/Loader";
 import LiveMatch from "../components/LiveMatch";
 import { getLiveMatches } from "../api/cricApi";
+import UpcomingMatches from "../components/UpcomingMatches";
 
 export default function Home() {
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -257,7 +258,13 @@ export default function Home() {
                   />
                 )}
               </div>
-              <div></div>
+              <div id="upcoming">
+                <div className={homeStyles.sectionHeader}>
+                  <h2 className={homeStyles.sectionTitle}>Upcoming matches</h2>
+                  <div className={homeStyles.sectionSubtitle}>Plan ahead</div>
+                </div>
+                <UpcomingMatches onSelect={(id) => onSelectMatch(id)} />
+              </div>
             </div>
           </section>
         </main>
